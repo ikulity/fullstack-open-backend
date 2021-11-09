@@ -47,8 +47,18 @@ app.post('/api/persons', (request, response) => {
         name: request.body.name,
         number: request.body.number
     }
+
+    // The name or number is missing
+    if (!(newPerson.name && newPerson.number)) {
+        return response.json({ error: 'name or number missing' })
+    }
+
+    // The name already exists in the phonebook
+    if (persons.some(person => person.name === newPerson.name)) {
+        return response.json({ error: 'name must be unique' })
+    }
     persons.push(newPerson)
-    response.json(newPerson)
+    return response.json(newPerson)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
