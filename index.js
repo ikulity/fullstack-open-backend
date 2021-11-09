@@ -48,6 +48,16 @@ app.get('/info', (request, response) => {
     )
 })
 
+app.delete('/api/persons/:id', (request, response) => {
+    const queryId = request.params.id
+    for (let i = 0; i < persons.length; i++) {
+        if (persons[i].id == queryId) {
+            persons.splice(i, 1)
+        }
+    }
+    response.send('Person deleted')
+})
+
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
