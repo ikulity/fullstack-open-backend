@@ -41,11 +41,14 @@ app.get('/api/persons/:id', (request, response) => {
     response.json(person)
 })
 
-app.get('/info', (request, response) => {
-    response.send(
-        `<p>Phonebook has info for ${persons.length} people.</p>
-        <p>${new Date(Date.now())}</p>`
-    )
+app.post('/api/persons', (request, response) => {
+    const newPerson = {
+        id: Math.floor(Math.random() * 1000000000),
+        name: request.body.name,
+        number: request.body.number
+    }
+    persons.push(newPerson)
+    response.json(newPerson)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -56,6 +59,13 @@ app.delete('/api/persons/:id', (request, response) => {
         }
     }
     response.send('Person deleted')
+})
+
+app.get('/info', (request, response) => {
+    response.send(
+        `<p>Phonebook has info for ${persons.length} people.</p>
+        <p>${new Date(Date.now())}</p>`
+    )
 })
 
 const PORT = 3001
