@@ -54,10 +54,11 @@ app.get('/api/persons', (request, response) => {
 
 // fetch a single person
 app.get('/api/persons/:id', (request, response) => {
-    const queryId = request.params.id
-    const person = persons.find(person => person.id == queryId)
-    if (!person) response.sendStatus(404)
-    response.json(person)
+    Person.findById(request.params.id)
+        .then(person => {
+            response.json(person)
+        })
+        .catch(err => next(err))
 })
 
 app.post('/api/persons', (request, response, next) => {
@@ -109,10 +110,13 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    response.send(
-        `<p>Phonebook has info for ${persons.length} people.</p>
-        <p>${new Date(Date.now())}</p>`
-    )
+    Person.count({})
+        .then(result => {
+            response.send(
+                `<p>Phonebook has info for ${result} people.</p>
+                <p>${new Date(Date.now())}</p>`
+            )
+        })
 })
 
 app.use(errorHandler)
