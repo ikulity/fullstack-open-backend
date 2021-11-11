@@ -79,7 +79,6 @@ app.post('/api/persons', (request, response, next) => {
     const newPerson = new Person(newPersonData);
     newPerson.save()
         .then(result => {
-            console.log("add successful:", result)
             return response.json(newPerson).status(200)
         })
         .catch(err => next(err))
@@ -90,8 +89,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         name: request.body.name,
         number: request.body.number
     }
-
-    Person.findByIdAndUpdate(request.params.id, personData, { new: true })
+    Person.findByIdAndUpdate(request.params.id, personData, { new: true, runValidators: true })
         .then(person => {
             response.json(person).status(200)
         })
@@ -104,7 +102,6 @@ app.delete('/api/persons/:id', (request, response) => {
             return response.status(204).end()
         })
         .catch(err => {
-            console.log('error removing a person:', err.message)
             return response.status(500)
         })
 })
