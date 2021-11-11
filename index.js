@@ -88,13 +88,14 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const queryId = request.params.id
-    for (let i = 0; i < persons.length; i++) {
-        if (persons[i].id == queryId) {
-            persons.splice(i, 1)
-        }
-    }
-    response.send('Person deleted')
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {
+            return response.status(204).end()
+        })
+        .catch(err => {
+            console.log('error removing a person:', err.message)
+            return response.status(500)
+        })
 })
 
 app.get('/info', (request, response) => {
