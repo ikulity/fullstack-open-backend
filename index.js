@@ -5,10 +5,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 const Person = require('./models/person')
-
-app.use(express.json())
-app.use(express.static('build'))
-app.use(cors())
+const errorHandler = require('./middleware/errorHandler')
 
 morgan.token('data', (req, res) => {
     if (req.method == "POST")
@@ -16,8 +13,10 @@ morgan.token('data', (req, res) => {
     else
         return
 })
+app.use(express.json())
+app.use(express.static('build'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
-
+app.use(cors())
 
 const persons = [
     {
@@ -53,6 +52,7 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
+// fetch a single person
 app.get('/api/persons/:id', (request, response) => {
     const queryId = request.params.id
     const person = persons.find(person => person.id == queryId)
@@ -60,7 +60,7 @@ app.get('/api/persons/:id', (request, response) => {
     response.json(person)
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const newPersonData = {
         name: request.body.name,
         number: request.body.number
@@ -81,10 +81,20 @@ app.post('/api/persons', (request, response) => {
             console.log("add successful:", result)
             return response.json(newPerson).status(200)
         })
-        .catch(err => {
-            console.log('error adding a new person:', err.message)
-            return response.json(err).status(500)
+        .catch(err => next(err))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const personData = {
+        name: request.body.name,
+        number: request.body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, personData, { new: true })
+        .then(person => {
+            response.json(person).status(200)
         })
+        .catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -104,6 +114,8 @@ app.get('/info', (request, response) => {
         <p>${new Date(Date.now())}</p>`
     )
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
