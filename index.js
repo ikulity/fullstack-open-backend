@@ -61,23 +61,30 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-    const newPerson = {
-        id: Math.floor(Math.random() * 1000000000),
+    const newPersonData = {
         name: request.body.name,
         number: request.body.number
     }
 
     // The name or number is missing
-    if (!(newPerson.name && newPerson.number)) {
-        return response.json({ error: 'name or number missing' })
+    if (!(newPersonData.name && newPersonData.number)) {
+        return response.json({ error: 'name or number missing' }).status(400)
     }
 
     // The name already exists in the phonebook
-    if (persons.some(person => person.name === newPerson.name)) {
-        return response.json({ error: 'name must be unique' })
+    if (persons.some(person => person.name === newPersonData.name)) {
+        return response.json({ error: 'name must be unique' }).status(400)
     }
-    persons.push(newPerson)
-    return response.json(newPerson)
+    const newPerson = new Person(newPersonData);
+    newPerson.save()
+        .then(result => {
+            console.log("add successful:", result)
+            return response.json(newPerson).status(200)
+        })
+        .catch(err => {
+            console.log('error adding a new person:', err.message)
+            return response.json(err).status(500)
+        })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
