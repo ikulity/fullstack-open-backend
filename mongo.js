@@ -26,7 +26,7 @@ if (newName && newNumber) {
         name: newName,
         number: newNumber
     })
-    newPerson.save().then(result => {
+    newPerson.save().then(() => {
         console.log(`added ${newName}, number: ${newNumber} to phonebook`)
         mongoose.connection.close()
     })

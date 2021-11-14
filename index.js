@@ -7,8 +7,8 @@ const cors = require('cors')
 const Person = require('./models/person')
 const errorHandler = require('./middleware/errorHandler')
 
-morgan.token('data', (req, res) => {
-    if (req.method == "POST")
+morgan.token('data', (req) => {
+    if (req.method === 'POST')
         return JSON.stringify(req.body)
     else
         return
@@ -31,7 +31,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 // fetch a single person
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
         .then(person => {
             response.json(person)
@@ -45,7 +45,7 @@ app.post('/api/persons', (request, response, next) => {
         number: request.body.number
     }
 
-    const newPerson = new Person(newPersonData);
+    const newPerson = new Person(newPersonData)
     newPerson.save()
         .then(result => {
             return response.json(result).status(200)
@@ -67,10 +67,10 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
-            return response.status(204).end()
+        .then(() => {
+            return response.status(204)
         })
-        .catch(err => {
+        .catch(() => {
             return response.status(500)
         })
 })
